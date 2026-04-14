@@ -105,3 +105,5 @@ MIT
 Part of the NOUMENON ecosystem.
 NOUMENON doesn't just check specs — it builds 100% of them.
 16 AI agents debate, then build, then verify. Every time.
+---
+Built by [Noumenon](https://github.com/Noumenon-ai)
