@@ -1,6 +1,6 @@
 """Tests for spec parser."""
 
-from spec_check.parser import generate_keywords, parse_spec
+from spec_check.parser import generate_keywords, generate_search_terms, parse_spec
 
 
 def test_parse_comma_separated():
@@ -38,6 +38,39 @@ def test_generate_keywords():
     assert "signin" in keywords or "auth" in keywords
 
 
-def test_generate_keywords_file_variants():
-    keywords = generate_keywords("dashboard")
-    assert any(kw.endswith(".tsx") for kw in keywords)
+def test_common_code_tokens_never_searched_alone():
+    # "csv export" must not search for "export" — it appears in every
+    # JS/TS module and produced false FOUND results.
+    keywords = [k.lower() for k in generate_keywords("csv export")]
+    assert "export" not in keywords
+    assert "csv" in keywords
+
+    keywords = [k.lower() for k in generate_keywords("user profile page")]
+    assert "page" not in keywords
+    assert "user" not in keywords
+    assert "profile" in keywords
+
+
+def test_multiword_features_require_phrase_match():
+    terms = generate_search_terms("task creation form")
+    # Lone words like "task" must not be searchable terms for a
+    # multi-word feature.
+    lowered = [t.lower() for t in terms.all_terms()]
+    assert "task" not in lowered
+    assert "creation" not in lowered
+    assert "taskcreation" in lowered
+    assert "task-creation" in lowered
+
+
+def test_single_distinctive_token_features():
+    terms = generate_search_terms("dashboard")
+    assert terms.token_terms == ["dashboard"]
+    assert terms.phrase_terms == []
+
+
+def test_phrase_variants_include_identifier_cases():
+    terms = generate_search_terms("task list")
+    lowered = [t.lower() for t in terms.all_terms()]
+    assert "tasklist" in lowered
+    assert "task_list" in lowered
+    assert "task-list" in lowered
