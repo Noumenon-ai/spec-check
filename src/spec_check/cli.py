@@ -22,6 +22,7 @@ console = Console()
 
 @app.callback(invoke_without_command=True)
 def main(
+    ctx: typer.Context,
     spec: Optional[str] = typer.Option(None, "--spec", "-s", help="Spec text describing features"),
     spec_file: Optional[str] = typer.Option(None, "--spec-file", "-f", help="Path to spec file"),
     dir: str = typer.Option(".", "--dir", "-d", help="Project directory to scan"),
@@ -30,6 +31,10 @@ def main(
     strict: bool = typer.Option(False, "--strict", help="Exit code 1 if < 100%% complete"),
 ) -> None:
     """Check project completeness against a spec."""
+    # A subcommand (e.g. `spec-check version`) handles its own work.
+    if ctx.invoked_subcommand is not None:
+        return
+
     # Get spec text
     spec_text = _resolve_spec(spec, spec_file, auto, dir)
     if not spec_text:
