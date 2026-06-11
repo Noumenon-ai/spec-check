@@ -8,5 +8,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install spec-check
+      - run: pip install git+https://github.com/Noumenon-ai/spec-check.git
       - run: spec-check --spec-file SPEC.md --dir . --strict --format json
